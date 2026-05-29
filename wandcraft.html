@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>WandCraft</title>
+<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:#0A0812;font-family:system-ui,-apple-system,sans-serif;color:#fff;}
+#app{min-height:100%;display:flex;justify-content:center;align-items:flex-start;padding:20px 0 40px;}
+.phone{width:340px;background:#120F1E;border-radius:28px;overflow:hidden;box-shadow:0 0 60px rgba(138,103,204,0.15);}
+.screen{min-height:600px;display:flex;flex-direction:column;}
+button{cursor:pointer;font-family:inherit;border:none;outline:none;}
+canvas{display:block;touch-action:none;cursor:crosshair;}
+input,textarea{font-family:inherit;}
+
+.sbar{display:flex;justify-content:space-between;padding:12px 18px 4px;font-size:12px;color:rgba(255,255,255,0.32);}
+.wrap{padding:18px 22px 30px;display:flex;flex-direction:column;gap:15px;}
+.logo-title{font-size:22px;font-weight:700;letter-spacing:3px;text-align:center;margin-bottom:3px;}
+.logo-sub{font-size:12px;color:rgba(255,255,255,0.42);text-align:center;}
+.lbl{font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:1px;margin-bottom:5px;}
+
+/* API key row */
+.apirow{display:flex;gap:8px;align-items:center;}
+.apirow input{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;font-size:12px;color:#fff;}
+.apirow input::placeholder{color:rgba(255,255,255,0.28);}
+.apirow input:focus{outline:none;border-color:rgba(138,103,204,0.55);}
+.apirow a{font-size:10px;color:#8A67CC;white-space:nowrap;text-decoration:none;}
+
+.upload-zone{border:1.5px dashed rgba(138,103,204,0.4);border-radius:14px;padding:22px 14px;text-align:center;cursor:pointer;background:rgba(138,103,204,0.04);transition:border-color 0.2s;}
+.upload-zone:hover{border-color:rgba(138,103,204,0.75);}
+.preview{width:100%;border-radius:11px;max-height:140px;object-fit:cover;display:none;}
+#fileInput{display:none;}
+textarea.msg{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);border-radius:11px;padding:11px 13px;font-size:13px;color:#fff;width:100%;resize:none;}
+textarea.msg::placeholder{color:rgba(255,255,255,0.28);}
+textarea.msg:focus{outline:none;border-color:rgba(138,103,204,0.55);}
+
+.diff-row{display:flex;gap:7px;}
+.diff-btn{flex:1;height:42px;border-radius:21px;font-size:11px;font-weight:700;letter-spacing:1px;border:1.5px solid;transition:border-width .1s;}
+.de{background:rgba(58,217,138,.10);color:#3AD98A;border-color:rgba(58,217,138,.42);}
+.dm{background:rgba(224,184,90,.10);color:#E0B85A;border-color:rgba(224,184,90,.42);}
+.dh{background:rgba(232,85,85,.10);color:#E85555;border-color:rgba(232,85,85,.42);}
+.dsel{border-width:2.5px!important;}
+
+.main-btn{width:100%;height:50px;background:#E0B85A;color:#120F1E;border-radius:25px;font-size:14px;font-weight:700;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:7px;}
+.main-btn:disabled{opacity:.32;cursor:not-allowed;}
+.main-btn.green{background:#3AD98A;color:#0A0812;}
+
+.link-card{background:rgba(138,103,204,.10);border:1px solid rgba(138,103,204,.25);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.link-url{font-size:11px;color:rgba(255,255,255,.65);word-break:break-all;line-height:1.5;}
+.copy-btn{height:40px;background:rgba(138,103,204,.18);border:1px solid rgba(138,103,204,.35);border-radius:20px;color:#A07EE8;font-size:13px;font-weight:600;width:100%;}
+.status{font-size:10px;color:rgba(255,255,255,.33);text-align:center;min-height:14px;}
+.err-inline{font-size:11px;color:#E85555;text-align:center;}
+
+/* game */
+.g-hint{text-align:center;font-size:11px;color:rgba(255,255,255,.38);padding:4px 16px;}
+.g-seg{text-align:center;font-size:10px;letter-spacing:1px;padding:1px 0 3px;}
+.timer-wrap{padding:5px 18px 12px;display:flex;flex-direction:column;gap:3px;}
+.timer-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;}
+.timer-fill{height:4px;border-radius:2px;transition:width 1s linear,background .5s;}
+.timer-lbl{text-align:center;font-size:10px;}
+
+/* reveal */
+.reveal-wrap{display:flex;flex-direction:column;align-items:center;padding:22px;gap:13px;text-align:center;min-height:600px;justify-content:center;}
+.reveal-img{width:100%;max-height:220px;object-fit:cover;border-radius:14px;border:2px solid rgba(58,217,138,.38);}
+.reveal-msg{font-size:14px;color:rgba(255,255,255,.82);line-height:1.65;font-style:italic;max-width:280px;}
+.dl-btn{width:100%;height:50px;background:#3AD98A;border-radius:25px;color:#0A0812;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;}
+.ghost{background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;text-decoration:underline;cursor:pointer;margin-top:-5px;}
+
+/* error / fail */
+.center-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:600px;padding:30px;text-align:center;gap:13px;}
+</style>
+</head>
+<body>
+<div id="app"><div class="phone" id="phone"></div></div>
+<script>
+const phone = document.getElementById('phone');
+const IMGBB  = 'https://api.imgbb.com/1/upload';
+
+const C = {
+  wand:'#5C3D1E',wandL:'#8A5E30',groove:'#A07EE8',
+  grooveDim:'rgba(160,126,232,0.28)',accent:'#E0B85A',
+  success:'#3AD98A',danger:'#E85555'
+};
+
+const SEGS = [
+  [{x:170,y:50},{x:167,y:137}],
+  [{x:167,y:137},{x:163,y:224}],
+  [{x:163,y:224},{x:170,y:311}],
+  [{x:170,y:311},{x:167,y:370}],
+  [{x:167,y:370},{x:170,y:410}],
+];
+
+// ── ROUTING ──────────────────────────────────────────────────────────────────
+function route(){
+  const raw = location.hash.slice(1);
+  if(raw.startsWith('play=')){
+    try{
+      const json = LZString.decompressFromEncodedURIComponent(raw.slice(5));
+      if(!json) throw 0;
+      const d = JSON.parse(json);
+      if(!d.img) throw 0;
+      showGame(d.diff||'medium', d.img, d.msg||'');
+    }catch(e){ showError('Broken link','Ask the sender to generate a new one.'); }
+  } else {
+    showSender();
+  }
+}
+window.addEventListener('hashchange', route);
+
+// ── SENDER ───────────────────────────────────────────────────────────────────
+function showSender(){
+  let imageB64 = null, diff = 'medium';
+
+  phone.innerHTML = `
+  <div class="screen">
+    <div class="sbar"><span>9:41</span><span>● ● ●</span></div>
+    <div class="wrap">
+      <div>
+        <div class="logo-title">WANDCRAFT</div>
+        <div class="logo-sub">Lock a surprise behind a spell</div>
+      </div>
+
+      <div>
+        <div class="lbl">IMGBB API KEY <span style="font-size:9px;opacity:.7">(paste yours here)</span></div>
+        <div class="apirow">
+          <input id="apiKey" type="password" placeholder="e.g. a1b2c3d4e5f6…" autocomplete="off"/>
+          <a href="https://api.imgbb.com" target="_blank">Get free key ↗</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="lbl">YOUR IMAGE</div>
+        <div class="upload-zone" id="zone">
+          <div style="font-size:26px;color:#8A67CC;margin-bottom:5px">⬆</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.48)">Tap to choose a photo</div>
+        </div>
+        <img class="preview" id="prev" alt="preview"/>
+        <input type="file" id="fileInput" accept="image/*"/>
+      </div>
+
+      <div>
+        <div class="lbl">MESSAGE (optional)</div>
+        <textarea class="msg" id="msg" rows="3" maxlength="280"
+          placeholder="Something for them to read after they win…"></textarea>
+      </div>
+
+      <div>
+        <div class="lbl">DIFFICULTY</div>
+        <div class="diff-row">
+          <button class="diff-btn de" id="de">EASY</button>
+          <button class="diff-btn dm dsel" id="dm">MEDIUM</button>
+          <button class="diff-btn dh" id="dh">HARD</button>
+        </div>
+      </div>
+
+      <div class="status" id="status"></div>
+      <div class="err-inline" id="errMsg"></div>
+
+      <button class="main-btn" id="genBtn" disabled>Upload &amp; generate link</button>
+
+      <div id="linkCard" style="display:none" class="link-card">
+        <div class="link-url" id="linkUrl"></div>
+        <button class="copy-btn" id="copyBtn">⎘ &nbsp;Copy link</button>
+      </div>
+    </div>
+  </div>`;
+
+  const apiKeyEl = phone.querySelector('#apiKey');
+  const zone     = phone.querySelector('#zone');
+  const prev     = phone.querySelector('#prev');
+  const fi       = phone.querySelector('#fileInput');
+  const msgEl    = phone.querySelector('#msg');
+  const genBtn   = phone.querySelector('#genBtn');
+  const statusEl = phone.querySelector('#status');
+  const errEl    = phone.querySelector('#errMsg');
+  const linkCard = phone.querySelector('#linkCard');
+  const linkUrl  = phone.querySelector('#linkUrl');
+  const copyBtn  = phone.querySelector('#copyBtn');
+
+  function checkReady(){
+    genBtn.disabled = !(apiKeyEl.value.trim() && imageB64);
+  }
+
+  apiKeyEl.addEventListener('input', checkReady);
+
+  zone.onclick = () => fi.click();
+  fi.onchange = e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      imageB64 = ev.target.result;
+      prev.src = imageB64; prev.style.display = 'block'; zone.style.display = 'none';
+      checkReady();
+    };
+    r.readAsDataURL(f);
+  };
+
+  ['de','dm','dh'].forEach(id => {
+    phone.querySelector('#'+id).onclick = () => {
+      diff = {de:'easy',dm:'medium',dh:'hard'}[id];
+      ['de','dm','dh'].forEach(x => phone.querySelector('#'+x).classList.toggle('dsel', x===id));
+    };
+  });
+
+  genBtn.onclick = async () => {
+    const key = apiKeyEl.value.trim();
+    if(!key || !imageB64){ return; }
+
+    genBtn.disabled = true; errEl.textContent = '';
+    statusEl.textContent = 'Resizing image…'; await tick();
+
+    let resized;
+    try{ resized = await resizeImage(imageB64, 800); }
+    catch(e){ showErr('Image resize failed.'); return; }
+
+    statusEl.textContent = 'Uploading to ImgBB…'; await tick();
+
+    // Strip data URL header — ImgBB wants raw base64
+    const b64 = resized.split(',')[1];
+    const form = new FormData();
+    form.append('key', key);
+    form.append('image', b64);
+
+    let imgUrl;
+    try{
+      const res  = await fetch(IMGBB, {method:'POST', body:form});
+      const json = await res.json();
+      if(!json.success) throw new Error(json.error?.message || 'Upload failed');
+      imgUrl = json.data.url;
+    }catch(e){
+      showErr('ImgBB upload failed: ' + e.message + '. Check your API key.');
+      return;
+    }
+
+    statusEl.textContent = 'Building link…'; await tick();
+
+    const payload = JSON.stringify({img: imgUrl, msg: msgEl.value.trim(), diff});
+    const encoded = LZString.compressToEncodedURIComponent(payload);
+    const url = location.href.split('#')[0] + '#play=' + encoded;
+
+    statusEl.textContent = '';
+    linkCard.style.display = 'flex'; linkCard.style.flexDirection = 'column';
+    linkUrl.textContent = url;
+    genBtn.textContent = '✓ Link ready!'; genBtn.classList.add('green'); genBtn.disabled = false;
+
+    copyBtn.onclick = () => copyText(url, copyBtn);
+  };
+
+  function showErr(msg){ errEl.textContent = msg; statusEl.textContent = ''; genBtn.disabled = false; }
+}
+
+// ── GAME ─────────────────────────────────────────────────────────────────────
+function showGame(difficulty, imgSrc, revealMsg){
+  const cfg = {
+    easy:  {tol:20,endR:20,startR:20,col:C.success},
+    medium:{tol:13,endR:14,startR:14,col:C.accent},
+    hard:  {tol:8, endR:10,startR:10,col:C.danger},
+  }[difficulty] || {tol:13,endR:14,startR:14,col:C.accent};
+
+  const TOTAL=60, CW=340, CH=440;
+
+  phone.innerHTML = `
+  <div class="screen">
+    <div class="sbar"><span>9:41</span><span>● ● ●</span></div>
+    <div class="g-hint" id="hint">Tap the green dot to begin</div>
+    <div class="g-seg" id="seg" style="color:${cfg.col}">SEGMENT 1 OF ${SEGS.length}</div>
+    <canvas id="cvs" width="${CW}" height="${CH}"></canvas>
+    <div class="timer-wrap">
+      <div class="timer-bar"><div class="timer-fill" id="tf" style="width:100%;background:${C.groove}"></div></div>
+      <div class="timer-lbl" id="tl" style="color:${C.groove}">${TOTAL}s remaining</div>
+    </div>
+  </div>`;
+
+  const cvs  = phone.querySelector('#cvs');
+  const ctx  = cvs.getContext('2d');
+  const hint = phone.querySelector('#hint');
+  const segL = phone.querySelector('#seg');
+  const tf   = phone.querySelector('#tf');
+  const tl   = phone.querySelector('#tl');
+
+  let cur=0,tracing=false,started=false,done=false,failed=false;
+  let pts=[],completed=[];
+  let timeLeft=TOTAL,timerID=null,rafID=null;
+
+  function updSeg(){ segL.textContent=`SEGMENT ${cur+1} OF ${SEGS.length}`; }
+
+  function startTimer(){
+    if(timerID) return;
+    timerID=setInterval(()=>{
+      timeLeft--;
+      tf.style.width=(timeLeft/TOTAL*100)+'%';
+      const tc=timeLeft<=10?C.danger:timeLeft<=20?C.accent:C.groove;
+      tf.style.background=tc; tl.style.color=tc;
+      tl.textContent=timeLeft+'s remaining';
+      if(timeLeft<=0){clearInterval(timerID);doFail();}
+    },1000);
+  }
+
+  function doFail(){
+    if(done||failed) return;
+    failed=true; tracing=false;
+    clearInterval(timerID); cancelAnimationFrame(rafID);
+    setTimeout(()=>showFail(difficulty,imgSrc,revealMsg),650);
+  }
+
+  function completeSeg(){
+    completed.push([...pts]); pts=[]; tracing=false;
+    if(cur>=SEGS.length-1){
+      done=true; clearInterval(timerID); cancelAnimationFrame(rafID);
+      setTimeout(()=>showReveal(imgSrc,revealMsg),800);
+    } else {
+      cur++; updSeg();
+      hint.textContent=`Segment ${cur+1} unlocked — tap the green dot`;
+    }
+  }
+
+  function rr(x,y,w,h,r,fill){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();ctx.fillStyle=fill;ctx.fill();
+  }
+  function sp(p,lw,color,glow){
+    if(p.length<2) return;
+    if(glow){
+      ctx.save();ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);
+      for(let i=1;i<p.length;i++)ctx.lineTo(p[i].x,p[i].y);
+      ctx.strokeStyle='rgba(160,126,232,0.18)';ctx.lineWidth=lw+12;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.restore();
+    }
+    ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);
+    for(let i=1;i<p.length;i++)ctx.lineTo(p[i].x,p[i].y);
+    ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,CW,CH);
+    const wg=ctx.createLinearGradient(156,0,184,0);
+    wg.addColorStop(0,C.wandL);wg.addColorStop(.5,C.wand);wg.addColorStop(1,C.wandL);
+    rr(156,36,28,380,14,wg);
+    const hg=ctx.createLinearGradient(146,0,194,0);
+    hg.addColorStop(0,'#B38010');hg.addColorStop(.5,C.accent);hg.addColorStop(1,'#B38010');
+    rr(146,410,48,18,9,hg);
+    ctx.beginPath();ctx.arc(170,32,17,0,Math.PI*2);ctx.fillStyle=done?C.success:C.accent;ctx.fill();
+    ctx.beginPath();ctx.arc(163,26,5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.45)';ctx.fill();
+
+    completed.forEach(p=>sp(p,7,C.groove,false));
+    if(!done){const s=SEGS[cur];sp([s[0],s[1]],7,C.grooveDim,false);}
+    if(pts.length>1) sp(pts,7,failed?C.danger:C.groove,!failed);
+
+    if(tracing&&pts.length>0){
+      const lp=pts[pts.length-1];
+      ctx.beginPath();ctx.arc(lp.x,lp.y,20,0,Math.PI*2);
+      ctx.fillStyle=failed?'rgba(232,85,85,0.18)':'rgba(160,126,232,0.18)';ctx.fill();
+      ctx.beginPath();ctx.arc(lp.x,lp.y,9,0,Math.PI*2);ctx.fillStyle=failed?C.danger:C.groove;ctx.fill();
+    }
+
+    if(!done&&!failed){
+      const seg=SEGS[cur], S=seg[0], E=seg[1];
+      const p1=.5+.5*Math.sin(Date.now()/350);
+      const p2=.5+.5*Math.sin(Date.now()/400+1);
+      if(!tracing){
+        ctx.beginPath();ctx.arc(S.x,S.y,18+p1*6,0,Math.PI*2);ctx.fillStyle=`rgba(58,217,138,${.07+p1*.10})`;ctx.fill();
+        ctx.beginPath();ctx.arc(S.x,S.y,12,0,Math.PI*2);ctx.fillStyle='rgba(58,217,138,0.20)';ctx.fill();
+        ctx.beginPath();ctx.arc(S.x,S.y,7,0,Math.PI*2);ctx.fillStyle=C.success;ctx.fill();
+        ctx.beginPath();ctx.arc(S.x-2,S.y-2,2.5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.5)';ctx.fill();
+        ctx.fillStyle=C.success;ctx.font='bold 10px system-ui';ctx.textAlign='center';
+        ctx.fillText(cur===0?'START HERE':'CONTINUE',S.x,S.y+28);
+      }
+      ctx.beginPath();ctx.arc(E.x,E.y,cfg.endR,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(58,217,138,${.30+p2*.25})`;ctx.lineWidth=2;ctx.stroke();
+      ctx.beginPath();ctx.arc(E.x,E.y,6,0,Math.PI*2);ctx.fillStyle='rgba(58,217,138,0.75)';ctx.fill();
+      ctx.fillStyle='rgba(58,217,138,0.85)';ctx.font='bold 10px system-ui';ctx.textAlign='center';
+      ctx.fillText(cur===SEGS.length-1?'FINISH':'NEXT',E.x+20,E.y+4);
+    }
+    rafID=requestAnimationFrame(draw);
+  }
+  rafID=requestAnimationFrame(draw);
+
+  function gp(e){const r=cvs.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};}
+  function ds(p,a,b){const dx=b.x-a.x,dy=b.y-a.y;if(!dx&&!dy)return Math.hypot(p.x-a.x,p.y-a.y);const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy)));return Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy));}
+
+  function onDown(e){
+    e.preventDefault();if(done||failed||tracing)return;
+    const p=gp(e),S=SEGS[cur][0];
+    if(Math.hypot(p.x-S.x,p.y-S.y)>cfg.startR)return;
+    tracing=true;if(!started){started=true;startTimer();}
+    pts=[p];hint.textContent='Trace to the green endpoint';
+  }
+  function onMove(e){
+    e.preventDefault();if(!tracing||done||failed)return;
+    const p=gp(e),seg=SEGS[cur];
+    if(ds(p,seg[0],seg[1])>cfg.tol){pts.push(p);doFail();return;}
+    pts.push(p);
+    if(Math.hypot(p.x-seg[1].x,p.y-seg[1].y)<=cfg.endR) completeSeg();
+  }
+  function onUp(e){e.preventDefault();tracing=false;}
+
+  cvs.addEventListener('mousedown',onDown,{passive:false});
+  cvs.addEventListener('mousemove',onMove,{passive:false});
+  cvs.addEventListener('mouseup',onUp);cvs.addEventListener('mouseleave',onUp);
+  cvs.addEventListener('touchstart',onDown,{passive:false});
+  cvs.addEventListener('touchmove',onMove,{passive:false});
+  cvs.addEventListener('touchend',onUp);
+}
+
+// ── REVEAL ───────────────────────────────────────────────────────────────────
+function showReveal(imgSrc, msg){
+  phone.innerHTML=`
+  <div class="screen">
+    <div class="reveal-wrap">
+      <div class="sbar" style="width:100%"><span>9:41</span><span>● ● ●</span></div>
+      <div style="width:56px;height:56px;border-radius:50%;border:2px solid #3AD98A;background:rgba(58,217,138,0.12);display:flex;align-items:center;justify-content:center;font-size:25px;color:#3AD98A;">✓</div>
+      <div style="font-size:20px;font-weight:700;letter-spacing:2px;">RUNE CARVED!</div>
+      <img src="${escHtml(imgSrc)}" class="reveal-img" alt="Your surprise" crossorigin="anonymous"/>
+      ${msg?`<div class="reveal-msg">"${escHtml(msg)}"</div>`:''}
+      <button class="dl-btn" id="dlBtn">⬇ &nbsp;Download image</button>
+      <button class="ghost" onclick="showSender()">← Send your own</button>
+    </div>
+  </div>`;
+
+  phone.querySelector('#dlBtn').onclick = async () => {
+    // Fetch image via proxy-friendly method and trigger download
+    try{
+      const res = await fetch(imgSrc);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download='wandcraft-surprise.jpg'; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+    }catch(e){
+      // Fallback: open in new tab
+      window.open(imgSrc,'_blank');
+    }
+  };
+}
+
+// ── FAIL ─────────────────────────────────────────────────────────────────────
+function showFail(diff, imgSrc, msg){
+  phone.innerHTML=`
+  <div class="screen">
+    <div class="center-screen">
+      <div class="sbar" style="width:100%"><span>9:41</span><span>● ● ●</span></div>
+      <div style="font-size:44px;color:#E85555">✕</div>
+      <div style="font-size:20px;font-weight:700">OFF THE PATH</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;max-width:260px">The spell broke — the surprise stays locked. Try again!</div>
+      <div style="background:rgba(232,85,85,.08);border-radius:12px;padding:10px 14px;font-size:11px;color:rgba(255,255,255,.6);text-align:center;max-width:240px;line-height:1.6">
+        <strong style="color:#E0B85A">Tip:</strong> Start on the green dot, drag slowly along the violet line to each checkpoint.
+      </div>
+      <button class="main-btn" style="max-width:210px" id="retry">TRY AGAIN</button>
+    </div>
+  </div>`;
+  phone.querySelector('#retry').onclick=()=>showGame(diff,imgSrc,msg);
+}
+
+// ── ERROR ────────────────────────────────────────────────────────────────────
+function showError(title,sub){
+  phone.innerHTML=`
+  <div class="screen">
+    <div class="center-screen">
+      <div style="font-size:44px">🪄</div>
+      <div style="font-size:20px;font-weight:700">${title}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.46);line-height:1.55;max-width:260px">${sub}</div>
+      <button class="main-btn" style="max-width:210px" onclick="showSender()">Create your own</button>
+    </div>
+  </div>`;
+}
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+const tick=()=>new Promise(r=>setTimeout(r,30));
+const escHtml=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function resizeImage(dataUrl, maxDim){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>maxDim||h>maxDim){if(w>h){h=Math.round(h*maxDim/w);w=maxDim;}else{w=Math.round(w*maxDim/h);h=maxDim;}}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      res(c.toDataURL('image/jpeg',.80));
+    };
+    img.onerror=rej; img.src=dataUrl;
+  });
+}
+
+function copyText(text, btn){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓  Copied!';
+    setTimeout(()=>btn.textContent='⎘  Copy link',2200);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent='✓  Copied!';
+    setTimeout(()=>btn.textContent='⎘  Copy link',2200);
+  });
+}
+
+window.showSender=showSender;
+route();
+</script>
+</body>
+</html>
