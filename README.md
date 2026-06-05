@@ -1,4 +1,4 @@
-# WandCraft
+# WandCarve
 
 > A little web app that lets you send someone a surprise image — but they have to earn it first.
 
