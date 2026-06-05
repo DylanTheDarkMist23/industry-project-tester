@@ -23,7 +23,7 @@ function route() {
     } catch (error) {
       showError(
         'Broken link',
-        'This WandCraft link appears to be corrupted or incomplete. Ask the sender to generate a new one.'
+        'This WandCarve link appears to be corrupted or incomplete. Ask the sender to generate a new one.'
       );
     }
 
@@ -50,7 +50,7 @@ function showSender() {
       <div class="wrap">
 
         <div>
-          <div class="logo-title">WANDCRAFT</div>
+          <div class="logo-title">WANDCARVE</div>
           <div class="logo-sub">Lock a surprise behind a spell</div>
         </div>
 
@@ -339,7 +339,7 @@ function showIntro(data) {
           </svg>
         </div>
 
-        <div class="intro-from">A WANDCRAFT FROM</div>
+        <div class="intro-from">A WANDCARVE FROM</div>
         <div class="intro-name">${escapeHtml(name)}</div>
         <div class="intro-sent">sent you a surprise</div>
 
@@ -743,7 +743,7 @@ function showReveal(imageSrc, msgAfter, senderName) {
         <div class="reveal-ty">— Thank you for playing 🪄 —</div>
 
         <button class="dl-btn" id="downloadBtn">⬇ &nbsp;Save image</button>
-        <button class="ghost" onclick="showSender()">← Send your own WandCraft</button>
+        <button class="ghost" onclick="showSender()">← Send your own WandCarve</button>
       </div>
     </div>`;
 
@@ -753,7 +753,7 @@ function showReveal(imageSrc, msgAfter, senderName) {
       const objectUrl = URL.createObjectURL(blob);
       const link      = document.createElement('a');
       link.href       = objectUrl;
-      link.download   = `wandcraft-from-${senderName.replace(/\s+/g, '-')}.jpg`;
+      link.download   = `wandcarve-from-${senderName.replace(/\s+/g, '-')}.jpg`;
       link.click();
       setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
     } catch {
