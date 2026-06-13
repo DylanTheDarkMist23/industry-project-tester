@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>WandCarve — Send a Spell</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+</head>
+<body>
+
+<div id="app">
+  <div class="phone">
+    <div class="screen">
+
+      <div class="sbar"><span>9:41</span><span>● ● ●</span></div>
+
+      <div class="wrap">
+
+        <div>
+          <div class="logo-title">WANDCARVE</div>
+          <div class="logo-sub">Lock a surprise behind a spell</div>
+        </div>
+
+        <!-- imgbb key -->
+        <div>
+          <div class="lbl">
+            IMGBB API KEY &nbsp;
+            <a href="https://api.imgbb.com" target="_blank"
+               style="font-size:10px;color:#8A67CC;text-decoration:none;">
+              Get free key ↗
+            </a>
+          </div>
+          <div class="key-row">
+            <input class="field" id="apiKey" type="password"
+                   placeholder="Paste your API key here…" autocomplete="off" />
+            <button class="key-test-btn" id="testBtn">Test</button>
+          </div>
+          <div class="key-status key-hint" id="keyStatus">
+            Paste your key then tap Test to verify it works
+          </div>
+        </div>
+
+        <!-- sender name -->
+        <div>
+          <div class="lbl">YOUR NAME</div>
+          <input class="field" id="senderName" type="text"
+                 placeholder="Enter a name the receiver will know" maxlength="40" />
+        </div>
+
+        <!-- message shown before the game -->
+        <div>
+          <div class="lbl">
+            BEGINNING MESSAGE
+            <span style="opacity:.5;font-size:9px">(shown before the game)</span>
+          </div>
+          <textarea class="field" id="msgBefore" rows="2" maxlength="200"
+                    placeholder="e.g. I have a little something for you…"></textarea>
+        </div>
+
+        <!-- photo upload -->
+        <div>
+          <div class="lbl">YOUR IMAGE</div>
+          <div class="upload-zone" id="uploadZone">
+            <div style="font-size:24px;color:#8A67CC;margin-bottom:5px">⬆</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.46)">Tap to choose a photo</div>
+          </div>
+          <img class="preview" id="imgPreview" alt="Your chosen photo" />
+          <input type="file" id="fileInput" accept="image/*" />
+        </div>
+
+        <!-- message shown after winning -->
+        <div>
+          <div class="lbl">
+            ENDING MESSAGE
+            <span style="opacity:.5;font-size:9px">(shown after winning)</span>
+          </div>
+          <textarea class="field" id="msgAfter" rows="2" maxlength="200"
+                    placeholder="e.g. Hope you liked it! 🎉"></textarea>
+        </div>
+
+        <!-- difficulty -->
+        <div>
+          <div class="lbl">DIFFICULTY FOR RECEIVER</div>
+          <div class="diff-row">
+            <button class="diff-btn de" id="de">EASY</button>
+            <button class="diff-btn dm dsel" id="dm">MEDIUM</button>
+            <button class="diff-btn dh" id="dh">HARD</button>
+          </div>
+        </div>
+
+        <div class="status"     id="statusMsg"></div>
+        <div class="err-inline" id="errorMsg"></div>
+
+        <button class="main-btn" id="generateBtn" disabled>Generate link</button>
+
+        <div id="linkCard" style="display:none" class="link-card">
+          <div class="link-url" id="linkDisplay"></div>
+          <button class="copy-btn" id="copyBtn">⎘ &nbsp;Copy link</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script>
+
+  let base64Image   = null;
+  let selectedDiff  = 'medium';
+  let keyVerified   = false;
+
+  const apiKeyInput  = document.getElementById('apiKey');
+  const senderName   = document.getElementById('senderName');
+  const msgBefore    = document.getElementById('msgBefore');
+  const msgAfter     = document.getElementById('msgAfter');
+  const uploadZone   = document.getElementById('uploadZone');
+  const imgPreview   = document.getElementById('imgPreview');
+  const fileInput    = document.getElementById('fileInput');
+  const generateBtn  = document.getElementById('generateBtn');
+  const statusMsg    = document.getElementById('statusMsg');
+  const errorMsg     = document.getElementById('errorMsg');
+  const linkCard     = document.getElementById('linkCard');
+  const linkDisplay  = document.getElementById('linkDisplay');
+  const copyBtn      = document.getElementById('copyBtn');
+  const testBtn      = document.getElementById('testBtn');
+  const keyStatus    = document.getElementById('keyStatus');
+
+  function checkReady() {
+    generateBtn.disabled = !(keyVerified && senderName.value.trim() && base64Image);
+  }
+
+  senderName.addEventListener('input', checkReady);
+
+  apiKeyInput.addEventListener('input', () => {
+    keyVerified = false;
+    keyStatus.className   = 'key-status key-hint';
+    keyStatus.textContent = 'Paste your key then tap Test to verify it works';
+    checkReady();
+  });
+
+  // uploads a tiny 1x1 png to imgbb just to check the key is real
+  testBtn.onclick = async () => {
+    const key = apiKeyInput.value.trim();
+    if (!key) {
+      keyStatus.className   = 'key-status key-err';
+      keyStatus.textContent = 'Please paste your API key first';
+      return;
+    }
+
+    testBtn.textContent = '…';
+    testBtn.disabled    = true;
+    keyStatus.className   = 'key-status key-hint';
+    keyStatus.textContent = 'Testing…';
+
+    const tiny = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+    try {
+      const fd = new FormData();
+      fd.append('key',   key);
+      fd.append('image', tiny);
+
+      const res    = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: fd });
+      const result = await res.json();
+
+      if (result.success) {
+        keyVerified           = true;
+        keyStatus.className   = 'key-status key-ok';
+        keyStatus.textContent = '✓ Key works! You\'re good to go.';
+      } else {
+        keyVerified           = false;
+        keyStatus.className   = 'key-status key-err';
+        keyStatus.textContent = '✕ Key rejected: ' + (result.error?.message || 'invalid key');
+      }
+    } catch {
+      keyVerified           = false;
+      keyStatus.className   = 'key-status key-err';
+      keyStatus.textContent = '✕ Could not reach imgbb — check your connection';
+    }
+
+    testBtn.textContent = 'Test';
+    testBtn.disabled    = false;
+    checkReady();
+  };
+
+  uploadZone.onclick = () => fileInput.click();
+
+  fileInput.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = ev => {
+      base64Image            = ev.target.result;
+      imgPreview.src         = base64Image;
+      imgPreview.style.display = 'block';
+      uploadZone.style.display = 'none';
+      checkReady();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  ['de', 'dm', 'dh'].forEach(id => {
+    document.getElementById(id).onclick = () => {
+      selectedDiff = { de: 'easy', dm: 'medium', dh: 'hard' }[id];
+      ['de', 'dm', 'dh'].forEach(x => {
+        document.getElementById(x).classList.toggle('dsel', x === id);
+      });
+    };
+  });
+
+  generateBtn.onclick = async () => {
+    const key  = apiKeyInput.value.trim();
+    const name = senderName.value.trim();
+    if (!key || !name || !base64Image) return;
+
+    generateBtn.disabled = true;
+    errorMsg.textContent = '';
+
+    statusMsg.textContent = 'Resizing image…';
+    await tick();
+
+    let resized;
+    try {
+      resized = await resizeImage(base64Image, 800);
+    } catch {
+      showErr('Could not process the image. Try a different file.');
+      return;
+    }
+
+    statusMsg.textContent = 'Uploading image…';
+    await tick();
+
+    const fd = new FormData();
+    fd.append('key',   key);
+    fd.append('image', resized.split(',')[1]);
+
+    let imgUrl;
+    try {
+      const res    = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const result = await res.json();
+      if (!result.success) throw new Error(result.error?.message || 'Upload rejected');
+
+      imgUrl = result.data.url;
+    } catch (err) {
+      showErr('Upload failed: ' + err.message + '. Use the Test button to check your key.');
+      return;
+    }
+
+    statusMsg.textContent = 'Building link…';
+    await tick();
+
+    const payload = JSON.stringify({
+      img:       imgUrl,
+      name:      name,
+      msgBefore: msgBefore.value.trim(),
+      msgAfter:  msgAfter.value.trim(),
+      diff:      selectedDiff,
+    });
+
+    const encoded = LZString.compressToEncodedURIComponent(payload);
+    const url     = location.origin + '/intro.html#data=' + encoded;
+
+    statusMsg.textContent       = '';
+    linkCard.style.display      = 'flex';
+    linkCard.style.flexDirection = 'column';
+    linkDisplay.textContent     = url;
+
+    generateBtn.textContent = '✓ Link ready!';
+    generateBtn.classList.add('green');
+    generateBtn.disabled = false;
+
+    copyBtn.onclick = () => copyTextToClipboard(url, copyBtn);
+  };
+
+  function showErr(msg) {
+    errorMsg.textContent  = msg;
+    statusMsg.textContent = '';
+    generateBtn.disabled  = false;
+  }
+
+</script>
+</body>
+</html>
