@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>WandCarve — How to Play</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+  <div class="phone">
+    <div class="screen howto-wrap">
+
+      <div class="sbar"><span>9:41</span><span>● ● ●</span></div>
+
+      <div style="display:flex;align-items:center;padding:6px 16px;">
+        <button id="backBtn"
+                style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.65);
+                       border-radius:16px;padding:5px 12px;font-size:12px;cursor:pointer;">
+          ← Back
+        </button>
+        <div style="flex:1;text-align:center;font-size:14px;font-weight:700;letter-spacing:1px;">
+          HOW TO PLAY
+        </div>
+        <div style="width:60px"></div>
+      </div>
+
+      <div style="width:36px;height:2px;background:#8A67CC;border-radius:1px;margin:0 auto 10px;"></div>
+
+      <div class="howto-body">
+
+        <div class="step-card" style="border-left:3px solid #A07EE8">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:28px;gap:3px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#A07EE8">01</div>
+            <div style="font-size:17px">👁</div>
+          </div>
+          <div>
+            <div class="step-title">One segment at a time</div>
+            <div class="step-desc">Only the current piece of the groove is shown. Complete it to reveal the next.</div>
+          </div>
+        </div>
+
+        <div class="step-card" style="border-left:3px solid #3AD98A">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:28px;gap:3px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#3AD98A">02</div>
+            <div style="font-size:17px">☝</div>
+          </div>
+          <div>
+            <div class="step-title">Start on the green dot</div>
+            <div class="step-desc">Tap the pulsing green circle to begin each segment — you must tap it to start.</div>
+          </div>
+        </div>
+
+        <div class="step-card" style="border-left:3px solid #A07EE8">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:28px;gap:3px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#A07EE8">03</div>
+            <div style="font-size:17px">↓</div>
+          </div>
+          <div>
+            <div class="step-title">Drag to the endpoint</div>
+            <div class="step-desc">Slide your finger along the groove all the way to the green endpoint.</div>
+          </div>
+        </div>
+
+        <div class="step-card" style="border-left:3px solid #E85555">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:28px;gap:3px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#E85555">04</div>
+            <div style="font-size:17px">⚡</div>
+          </div>
+          <div>
+            <div class="step-title">Don't leave the path</div>
+            <div class="step-desc">Straying off the groove breaks the spell instantly. No shortcuts!</div>
+          </div>
+        </div>
+
+        <div class="step-card" style="border-left:3px solid #3AD98A">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:28px;gap:3px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#3AD98A">05</div>
+            <div style="font-size:17px">✓</div>
+          </div>
+          <div>
+            <div class="step-title">Complete all segments</div>
+            <div class="step-desc">Finish every segment in order and the surprise unlocks. You win!</div>
+          </div>
+        </div>
+
+        <div class="tip-card">⏱ &nbsp;You have 60 seconds — slow and steady wins the spell</div>
+
+        <div style="height:4px"></div>
+
+      </div>
+
+      <div style="padding:12px 20px 20px;">
+        <button class="main-btn" id="startBtn">✦ &nbsp;Start the spell</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('backBtn').onclick  = () => history.back();
+  document.getElementById('startBtn').onclick = () => { location.href = 'game.html'; };
+</script>
+</body>
+</html>
