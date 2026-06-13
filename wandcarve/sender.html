@@ -22,7 +22,6 @@
           <div class="logo-sub">Lock a surprise behind a spell</div>
         </div>
 
-        <!-- imgbb key -->
         <div>
           <div class="lbl">
             IMGBB API KEY &nbsp;
@@ -41,14 +40,12 @@
           </div>
         </div>
 
-        <!-- sender name -->
         <div>
           <div class="lbl">YOUR NAME</div>
           <input class="field" id="senderName" type="text"
                  placeholder="Enter a name the receiver will know" maxlength="40" />
         </div>
 
-        <!-- message shown before the game -->
         <div>
           <div class="lbl">
             BEGINNING MESSAGE
@@ -58,7 +55,6 @@
                     placeholder="e.g. I have a little something for you…"></textarea>
         </div>
 
-        <!-- photo upload -->
         <div>
           <div class="lbl">YOUR IMAGE</div>
           <div class="upload-zone" id="uploadZone">
@@ -69,7 +65,6 @@
           <input type="file" id="fileInput" accept="image/*" />
         </div>
 
-        <!-- message shown after winning -->
         <div>
           <div class="lbl">
             ENDING MESSAGE
@@ -79,7 +74,6 @@
                     placeholder="e.g. Hope you liked it! 🎉"></textarea>
         </div>
 
-        <!-- difficulty -->
         <div>
           <div class="lbl">DIFFICULTY FOR RECEIVER</div>
           <div class="diff-row">
@@ -104,29 +98,65 @@
   </div>
 </div>
 
-<script src="js/config.js"></script>
-<script src="js/utils.js"></script>
 <script>
+  // all constants inline — no external js/ dependency
+  var IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
 
-  let base64Image   = null;
-  let selectedDiff  = 'medium';
-  let keyVerified   = false;
+  function tick() { return new Promise(r => setTimeout(r, 30)); }
 
-  const apiKeyInput  = document.getElementById('apiKey');
-  const senderName   = document.getElementById('senderName');
-  const msgBefore    = document.getElementById('msgBefore');
-  const msgAfter     = document.getElementById('msgAfter');
-  const uploadZone   = document.getElementById('uploadZone');
-  const imgPreview   = document.getElementById('imgPreview');
-  const fileInput    = document.getElementById('fileInput');
-  const generateBtn  = document.getElementById('generateBtn');
-  const statusMsg    = document.getElementById('statusMsg');
-  const errorMsg     = document.getElementById('errorMsg');
-  const linkCard     = document.getElementById('linkCard');
-  const linkDisplay  = document.getElementById('linkDisplay');
-  const copyBtn      = document.getElementById('copyBtn');
-  const testBtn      = document.getElementById('testBtn');
-  const keyStatus    = document.getElementById('keyStatus');
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function resizeImage(dataUrl, maxPx) {
+    return new Promise((resolve, reject) => {
+      var img = new Image();
+      img.onload = function() {
+        var w = img.width, h = img.height;
+        if (w > maxPx || h > maxPx) {
+          if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+          else       { w = Math.round(w * maxPx / h); h = maxPx; }
+        }
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', 0.80));
+      };
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+  }
+
+  function copyToClipboard(text, btn) {
+    var orig = btn.textContent;
+    function flash() { btn.textContent = '✓  Copied!'; setTimeout(function(){ btn.textContent = orig; }, 2200); }
+    navigator.clipboard.writeText(text).then(flash).catch(function() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta); flash();
+    });
+  }
+
+  var base64Image  = null;
+  var selectedDiff = 'medium';
+  var keyVerified  = false;
+
+  var apiKeyInput = document.getElementById('apiKey');
+  var senderName  = document.getElementById('senderName');
+  var msgBefore   = document.getElementById('msgBefore');
+  var msgAfter    = document.getElementById('msgAfter');
+  var uploadZone  = document.getElementById('uploadZone');
+  var imgPreview  = document.getElementById('imgPreview');
+  var fileInput   = document.getElementById('fileInput');
+  var generateBtn = document.getElementById('generateBtn');
+  var statusMsg   = document.getElementById('statusMsg');
+  var errorMsg    = document.getElementById('errorMsg');
+  var linkCard    = document.getElementById('linkCard');
+  var linkDisplay = document.getElementById('linkDisplay');
+  var copyBtn     = document.getElementById('copyBtn');
+  var testBtn     = document.getElementById('testBtn');
+  var keyStatus   = document.getElementById('keyStatus');
 
   function checkReady() {
     generateBtn.disabled = !(keyVerified && senderName.value.trim() && base64Image);
@@ -134,43 +164,41 @@
 
   senderName.addEventListener('input', checkReady);
 
-  apiKeyInput.addEventListener('input', () => {
+  apiKeyInput.addEventListener('input', function() {
     keyVerified = false;
     keyStatus.className   = 'key-status key-hint';
     keyStatus.textContent = 'Paste your key then tap Test to verify it works';
     checkReady();
   });
 
-  // uploads a tiny 1x1 png to imgbb just to check the key is real
-  testBtn.onclick = async () => {
-    const key = apiKeyInput.value.trim();
+  testBtn.onclick = async function() {
+    var key = apiKeyInput.value.trim();
     if (!key) {
       keyStatus.className   = 'key-status key-err';
       keyStatus.textContent = 'Please paste your API key first';
       return;
     }
 
-    testBtn.textContent = '…';
-    testBtn.disabled    = true;
+    testBtn.textContent   = '…';
+    testBtn.disabled      = true;
     keyStatus.className   = 'key-status key-hint';
     keyStatus.textContent = 'Testing…';
 
-    // imgbb expects the raw base64 string (no data:... prefix)
-    const tiny = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+    // tiny 1x1 transparent png — raw base64, no data: prefix
+    var tiny = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
     try {
-      const fd = new FormData();
+      var fd = new FormData();
       fd.append('key',   key);
       fd.append('image', tiny);
 
-      const res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: fd });
+      var res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: fd });
 
-      // try to parse json regardless of http status
-      let result;
+      var result;
       try {
         result = await res.json();
-      } catch {
-        throw new Error('HTTP ' + res.status + ' — unexpected response from imgbb');
+      } catch(parseErr) {
+        throw new Error('Server returned HTTP ' + res.status + ' (not JSON)');
       }
 
       if (result.success) {
@@ -180,13 +208,13 @@
       } else {
         keyVerified           = false;
         keyStatus.className   = 'key-status key-err';
-        const msg = result.error?.message || result.error?.code || JSON.stringify(result.error) || 'invalid key';
-        keyStatus.textContent = '✕ Key rejected: ' + msg;
+        var reason = (result.error && (result.error.message || result.error.code)) || JSON.stringify(result.error) || 'unknown';
+        keyStatus.textContent = '✕ Key rejected: ' + reason;
       }
-    } catch (err) {
+    } catch(err) {
       keyVerified           = false;
       keyStatus.className   = 'key-status key-err';
-      keyStatus.textContent = '✕ ' + (err.message || 'Unknown error — open DevTools console for details');
+      keyStatus.textContent = '✕ Error: ' + err.message;
       console.error('imgbb test error:', err);
     }
 
@@ -195,16 +223,15 @@
     checkReady();
   };
 
-  uploadZone.onclick = () => fileInput.click();
+  uploadZone.onclick = function() { fileInput.click(); };
 
-  fileInput.onchange = e => {
-    const file = e.target.files[0];
+  fileInput.onchange = function(e) {
+    var file = e.target.files[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = ev => {
-      base64Image            = ev.target.result;
-      imgPreview.src         = base64Image;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      base64Image              = ev.target.result;
+      imgPreview.src           = base64Image;
       imgPreview.style.display = 'block';
       uploadZone.style.display = 'none';
       checkReady();
@@ -212,18 +239,18 @@
     reader.readAsDataURL(file);
   };
 
-  ['de', 'dm', 'dh'].forEach(id => {
-    document.getElementById(id).onclick = () => {
-      selectedDiff = { de: 'easy', dm: 'medium', dh: 'hard' }[id];
-      ['de', 'dm', 'dh'].forEach(x => {
+  ['de','dm','dh'].forEach(function(id) {
+    document.getElementById(id).onclick = function() {
+      selectedDiff = { de:'easy', dm:'medium', dh:'hard' }[id];
+      ['de','dm','dh'].forEach(function(x) {
         document.getElementById(x).classList.toggle('dsel', x === id);
       });
     };
   });
 
-  generateBtn.onclick = async () => {
-    const key  = apiKeyInput.value.trim();
-    const name = senderName.value.trim();
+  generateBtn.onclick = async function() {
+    var key  = apiKeyInput.value.trim();
+    var name = senderName.value.trim();
     if (!key || !name || !base64Image) return;
 
     generateBtn.disabled = true;
@@ -232,10 +259,10 @@
     statusMsg.textContent = 'Resizing image…';
     await tick();
 
-    let resized;
+    var resized;
     try {
       resized = await resizeImage(base64Image, 800);
-    } catch {
+    } catch(e) {
       showErr('Could not process the image. Try a different file.');
       return;
     }
@@ -243,28 +270,26 @@
     statusMsg.textContent = 'Uploading image…';
     await tick();
 
-    const fd = new FormData();
+    var fd = new FormData();
     fd.append('key',   key);
     fd.append('image', resized.split(',')[1]);
 
-    let imgUrl;
+    var imgUrl;
     try {
-      const res    = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: fd });
+      var res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: fd });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-
-      const result = await res.json();
-      if (!result.success) throw new Error(result.error?.message || 'Upload rejected');
-
+      var result = await res.json();
+      if (!result.success) throw new Error((result.error && result.error.message) || 'Upload rejected');
       imgUrl = result.data.url;
-    } catch (err) {
-      showErr('Upload failed: ' + err.message + '. Use the Test button to check your key.');
+    } catch(err) {
+      showErr('Upload failed: ' + err.message);
       return;
     }
 
     statusMsg.textContent = 'Building link…';
     await tick();
 
-    const payload = JSON.stringify({
+    var payload = JSON.stringify({
       img:       imgUrl,
       name:      name,
       msgBefore: msgBefore.value.trim(),
@@ -272,19 +297,21 @@
       diff:      selectedDiff,
     });
 
-    const encoded = LZString.compressToEncodedURIComponent(payload);
-    const url     = location.origin + '/intro.html#data=' + encoded;
+    var encoded = LZString.compressToEncodedURIComponent(payload);
+    // build the intro URL — works on both localhost and github pages
+    var base = location.href.replace(/sender\.html.*$/, '');
+    var url  = base + 'intro.html#data=' + encoded;
 
-    statusMsg.textContent       = '';
-    linkCard.style.display      = 'flex';
+    statusMsg.textContent        = '';
+    linkCard.style.display       = 'flex';
     linkCard.style.flexDirection = 'column';
-    linkDisplay.textContent     = url;
+    linkDisplay.textContent      = url;
 
     generateBtn.textContent = '✓ Link ready!';
     generateBtn.classList.add('green');
     generateBtn.disabled = false;
 
-    copyBtn.onclick = () => copyTextToClipboard(url, copyBtn);
+    copyBtn.onclick = function() { copyToClipboard(url, copyBtn); };
   };
 
   function showErr(msg) {
@@ -292,7 +319,6 @@
     statusMsg.textContent = '';
     generateBtn.disabled  = false;
   }
-
 </script>
 </body>
 </html>
