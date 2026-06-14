@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>WandCarve</title>
+  </head>
+  <body>
+    <!-- Routes to intro if a play link is present, otherwise goes to the sender form -->
+    <script>
+      var hash = location.hash;
+      if (hash.startsWith('#play=')) {
+        location.replace('intro.html#data=' + hash.slice(6));
+      } else {
+        location.replace('sender.html');
+      }
+    </script>
+  </body>
+</html>

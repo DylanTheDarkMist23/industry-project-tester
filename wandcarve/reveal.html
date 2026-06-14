@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="reveal.css" />
+    <title>WandCarve — Rune Carved!</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="phone">
+        <div class="screen">
+          <!-- Status bar -->
+          <div class="sbar" style="width: 100%">
+            <span>9:41</span>
+            <span>● ● ●</span>
+          </div>
+
+          <!-- Reveal content -->
+          <div class="reveal-wrap">
+            <!-- Success tick icon -->
+            <div id="success-icon">✓</div>
+
+            <!-- Win title -->
+            <div id="reveal-title">RUNE CARVED!</div>
+
+            <!-- The revealed surprise image (src filled by JS) -->
+            <img id="reveal-img" alt="Your surprise" crossorigin="anonymous" />
+
+            <!-- Sender's ending message (hidden if empty, filled by JS) -->
+            <div id="reveal-end-msg" style="display: none"></div>
+
+            <!-- Thank you line -->
+            <div id="reveal-ty">— Thank you for playing 🪄 —</div>
+
+            <!-- Save image button -->
+            <button id="dl-btn">⬇ &nbsp;Save image</button>
+
+            <!-- Link to create your own -->
+            <a href="sender.html">
+              <button class="ghost">← Send your own WandCarve</button>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="reveal.js"></script>
+  </body>
+</html>

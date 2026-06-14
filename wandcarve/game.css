@@ -1,0 +1,39 @@
+/* ------Game Screen------ */
+#hint {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.38);
+  padding: 4px 16px;
+}
+
+#segCounter {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 1px 0 3px;
+}
+
+/* ------Timer------ */
+#timer-wrap {
+  padding: 5px 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#timer-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+#timer-fill {
+  height: 4px;
+  border-radius: 2px;
+  transition: width 1s linear, background-color 0.5s;
+}
+
+#timer-label {
+  text-align: center;
+  font-size: 10px;
+}

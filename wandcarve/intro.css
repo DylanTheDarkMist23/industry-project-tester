@@ -1,0 +1,69 @@
+/* ------Intro Screen Layout------ */
+.intro-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 600px;
+  padding: 32px 28px;
+  text-align: center;
+}
+
+/* ------Sender Info------ */
+.intro-from {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.intro-name {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.intro-sent {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.38);
+  margin-bottom: 22px;
+}
+
+/* ------Divider------ */
+.intro-divider {
+  width: 40px;
+  height: 2px;
+  background-color: #8A67CC;
+  border-radius: 1px;
+  margin: 0 auto 20px;
+}
+
+/* ------Message------ */
+.intro-msg {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.7;
+  font-style: italic;
+  margin-bottom: 26px;
+  max-width: 270px;
+}
+
+/* ------Buttons------ */
+.intro-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ------Wand Illustration------ */
+#wand-icon {
+  margin-bottom: 18px;
+}
+
+/* ------Mobile------ */
+@media (max-width: 499px) {
+  .intro-wrap {
+    min-height: 100dvh;
+  }
+}

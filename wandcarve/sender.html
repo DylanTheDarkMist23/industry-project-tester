@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="sender.css" />
+    <title>WandCarve — Send a Spell</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="phone">
+        <div class="screen">
+          <!-- Status bar -->
+          <div class="sbar">
+            <span>9:41</span>
+            <span>● ● ●</span>
+          </div>
+
+          <!-- Scrollable form area -->
+          <div class="wrap">
+            <!-- Logo -->
+            <div>
+              <div class="logo-title">WANDCARVE</div>
+              <div class="logo-sub">Lock a surprise behind a spell</div>
+            </div>
+
+            <!-- imgbb API key -->
+            <div>
+              <div class="lbl">
+                IMGBB API KEY &nbsp;
+                <a href="https://api.imgbb.com" target="_blank" class="key-link"
+                  >Get free key ↗</a
+                >
+              </div>
+              <div class="key-row">
+                <input
+                  class="field"
+                  id="apiKey"
+                  type="password"
+                  placeholder="Paste your API key here…"
+                  autocomplete="off"
+                />
+                <button class="key-test-btn" id="testBtn">Test</button>
+              </div>
+              <div class="key-status key-hint" id="keyStatus">
+                Paste your key then tap Test to verify it works
+              </div>
+            </div>
+
+            <!-- Sender name -->
+            <div>
+              <div class="lbl">YOUR NAME</div>
+              <input
+                class="field"
+                id="senderName"
+                type="text"
+                placeholder="Enter a name the receiver will know"
+                maxlength="40"
+              />
+            </div>
+
+            <!-- Message shown before the game -->
+            <div>
+              <div class="lbl">
+                BEGINNING MESSAGE
+                <span class="lbl-hint">(shown before the game)</span>
+              </div>
+              <textarea
+                class="field"
+                id="msgBefore"
+                rows="2"
+                maxlength="200"
+                placeholder="e.g. I have a little something for you…"
+              ></textarea>
+            </div>
+
+            <!-- Image upload -->
+            <div>
+              <div class="lbl">YOUR IMAGE</div>
+              <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">⬆</div>
+                <div class="upload-label">Tap to choose a photo</div>
+              </div>
+              <img class="preview" id="imgPreview" alt="Your chosen photo" />
+              <input type="file" id="fileInput" accept="image/*" />
+            </div>
+
+            <!-- Message shown after winning -->
+            <div>
+              <div class="lbl">
+                ENDING MESSAGE
+                <span class="lbl-hint">(shown after winning)</span>
+              </div>
+              <textarea
+                class="field"
+                id="msgAfter"
+                rows="2"
+                maxlength="200"
+                placeholder="e.g. Hope you liked it! 🎉"
+              ></textarea>
+            </div>
+
+            <!-- Difficulty selection -->
+            <div>
+              <div class="lbl">DIFFICULTY FOR RECEIVER</div>
+              <div class="diff-row">
+                <button class="diff-btn de" id="de">EASY</button>
+                <button class="diff-btn dm dsel" id="dm">MEDIUM</button>
+                <button class="diff-btn dh" id="dh">HARD</button>
+              </div>
+            </div>
+
+            <!-- Status and error messages -->
+            <div class="status" id="statusMsg"></div>
+            <div class="err-inline" id="errorMsg"></div>
+
+            <!-- Generate button -->
+            <button class="main-btn" id="generateBtn" disabled>
+              Generate link
+            </button>
+
+            <!-- Generated link card (hidden until link is ready) -->
+            <div id="linkCard" class="link-card" style="display: none">
+              <div class="link-url" id="linkDisplay"></div>
+              <button class="copy-btn" id="copyBtn">⎘ &nbsp;Copy link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- lz-string for payload compression -->
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script src="sender.js"></script>
+  </body>
+</html>

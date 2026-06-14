@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="howtoplay.css" />
+    <title>WandCarve — How to Play</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="phone">
+        <div class="screen howto-wrap">
+          <!-- Status bar -->
+          <div class="sbar">
+            <span>9:41</span>
+            <span>● ● ●</span>
+          </div>
+
+          <!-- Top nav with back button and title -->
+          <div id="howto-topbar">
+            <button id="back-btn">← Back</button>
+            <div id="howto-title">HOW TO PLAY</div>
+            <div id="howto-spacer"></div>
+          </div>
+
+          <!-- Purple divider -->
+          <div class="howto-divider"></div>
+
+          <!-- Scrollable steps list -->
+          <div class="howto-body">
+            <!-- Step 1 -->
+            <div class="step-card" style="border-left: 3px solid #a07ee8">
+              <div class="step-num-icon">
+                <span class="step-num" style="color: #a07ee8">01</span>
+                <span class="step-emoji">👁</span>
+              </div>
+              <div>
+                <div class="step-title">One segment at a time</div>
+                <div class="step-desc">
+                  Only the current piece of the groove is shown. Complete it to
+                  reveal the next.
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card" style="border-left: 3px solid #3ad98a">
+              <div class="step-num-icon">
+                <span class="step-num" style="color: #3ad98a">02</span>
+                <span class="step-emoji">☝</span>
+              </div>
+              <div>
+                <div class="step-title">Start on the green dot</div>
+                <div class="step-desc">
+                  Tap the pulsing green circle to begin each segment — you must
+                  tap it to start.
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card" style="border-left: 3px solid #a07ee8">
+              <div class="step-num-icon">
+                <span class="step-num" style="color: #a07ee8">03</span>
+                <span class="step-emoji">↓</span>
+              </div>
+              <div>
+                <div class="step-title">Drag to the endpoint</div>
+                <div class="step-desc">
+                  Slide your finger along the groove all the way to the green
+                  endpoint.
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-card" style="border-left: 3px solid #e85555">
+              <div class="step-num-icon">
+                <span class="step-num" style="color: #e85555">04</span>
+                <span class="step-emoji">⚡</span>
+              </div>
+              <div>
+                <div class="step-title">Don't leave the path</div>
+                <div class="step-desc">
+                  Straying off the groove breaks the spell instantly. No
+                  shortcuts!
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step-card" style="border-left: 3px solid #3ad98a">
+              <div class="step-num-icon">
+                <span class="step-num" style="color: #3ad98a">05</span>
+                <span class="step-emoji">✓</span>
+              </div>
+              <div>
+                <div class="step-title">Complete all segments</div>
+                <div class="step-desc">
+                  Finish every segment in order and the surprise unlocks. You
+                  win!
+                </div>
+              </div>
+            </div>
+
+            <!-- Tip -->
+            <div class="tip-card">
+              ⏱ &nbsp;You have 60 seconds — slow and steady wins the spell
+            </div>
+          </div>
+
+          <!-- Start button at the bottom -->
+          <div id="howto-footer">
+            <button class="main-btn" id="startBtn">
+              ✦ &nbsp;Start the spell
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="howtoplay.js"></script>
+  </body>
+</html>
