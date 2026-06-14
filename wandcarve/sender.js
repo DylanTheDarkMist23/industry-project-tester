@@ -93,13 +93,11 @@ testBtn.onclick = async function() {
   keyStatus.className   = 'key-status key-hint';
   keyStatus.textContent = 'Testing…';
 
-  // a tiny 1x1 transparent png to check the key is valid
-  var tiny = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-
   try {
+    // use a small public image URL to validate the key — more reliable than base64
     var fd = new FormData();
     fd.append('key',   key);
-    fd.append('image', tiny);
+    fd.append('image', 'https://www.gstatic.com/webp/gallery/1.jpg');
 
     var res = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: fd });
 
